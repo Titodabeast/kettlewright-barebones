@@ -22,7 +22,7 @@ const categories = {
     Dungeon: data.Dungeon,
     Forest: data.Forest,
     Realm: data.Realm,
-    Faction: data.Faction,
+    Faction: data.FactionGenerator,
     "Faction Actions": data.FactionActions,
     NPC: data.NPCGenerator,
   },
@@ -287,35 +287,35 @@ const rollWorldbuilding = (data, subcategory) => {
   const setting = data[subcategory];
   let result = {};
 
-  const rollRealmFaction = () => {
+  const rollRealmFaction = (realmSetting) => {
     // Factions
     const advantageNumber =
-      setting.Theme.Factions.FactionAdvantages.NumberOfAdvantages[
-        roll(setting.Theme.Factions.FactionAdvantages.NumberOfAdvantages.length)
+      realmSetting.Theme.Factions.FactionAdvantages.NumberOfAdvantages[
+        roll(realmSetting.Theme.Factions.FactionAdvantages.NumberOfAdvantages.length)
       ];
     let advantages = [];
     for (let i = 0; i < advantageNumber; i++) {
       advantages.push(
-        setting.Theme.Factions.FactionAdvantages.Advantage[
-          roll(setting.Theme.Factions.FactionAdvantages.Advantage.length)
+        realmSetting.Theme.Factions.FactionAdvantages.Advantage[
+          roll(realmSetting.Theme.Factions.FactionAdvantages.Advantage.length)
         ]
       );
     }
     const nameFormula =
-      setting.Theme.Factions.FactionNames.NameFormulas.Faction[
-        roll(setting.Theme.Factions.FactionNames.NameFormulas.Faction.length)
+      realmSetting.Theme.Factions.FactionNames.NameFormulas.Faction[
+        roll(realmSetting.Theme.Factions.FactionNames.NameFormulas.Faction.length)
       ];
     const adjective =
-      setting.Theme.Factions.FactionNames.Adjectives[
-        roll(setting.Theme.Factions.FactionNames.Adjectives.length)
+      realmSetting.Theme.Factions.FactionNames.Adjectives[
+        roll(realmSetting.Theme.Factions.FactionNames.Adjectives.length)
       ];
     const noun =
-      setting.Theme.Factions.FactionNames.Nouns[
-        roll(setting.Theme.Factions.FactionNames.Nouns.length)
+      realmSetting.Theme.Factions.FactionNames.Nouns[
+        roll(realmSetting.Theme.Factions.FactionNames.Nouns.length)
       ];
     const type =
-      setting.Theme.Factions.FactionNames.FactionTypes[
-        roll(setting.Theme.Factions.FactionNames.FactionTypes.length)
+      realmSetting.Theme.Factions.FactionNames.FactionTypes[
+        roll(realmSetting.Theme.Factions.FactionNames.FactionTypes.length)
       ];
 
     const name = convertName(nameFormula, [
@@ -327,29 +327,106 @@ const rollWorldbuilding = (data, subcategory) => {
     let factions = {};
     factions = {
       Name: name,
-      Type: setting.Theme.Factions.FactionTypes.Type[
-        roll(setting.Theme.Factions.FactionTypes.Type.length)
+      Type: realmSetting.Theme.Factions.FactionTypes.Type[
+        roll(realmSetting.Theme.Factions.FactionTypes.Type.length)
       ],
       Agent:
-        setting.Theme.Factions.FactionTypes.Agent[
-          roll(setting.Theme.Factions.FactionTypes.Agent.length)
+        realmSetting.Theme.Factions.FactionTypes.Agent[
+          roll(realmSetting.Theme.Factions.FactionTypes.Agent.length)
         ],
       "Trait 1":
-        setting.Theme.Factions.FactionTraits.Trait1[
-          roll(setting.Theme.Factions.FactionTraits.Trait1.length)
+        realmSetting.Theme.Factions.FactionTraits.Trait1[
+          roll(realmSetting.Theme.Factions.FactionTraits.Trait1.length)
         ],
       "Trait 2":
-        setting.Theme.Factions.FactionTraits.Trait2[
-          roll(setting.Theme.Factions.FactionTraits.Trait2.length)
+        realmSetting.Theme.Factions.FactionTraits.Trait2[
+          roll(realmSetting.Theme.Factions.FactionTraits.Trait2.length)
         ],
       Advantages: advantages.join(", "),
       Agenda:
-        setting.Theme.Factions.FactionAgendas.Agenda[
-          roll(setting.Theme.Factions.FactionAgendas.Agenda.length)
+        realmSetting.Theme.Factions.FactionAgendas.Agenda[
+          roll(realmSetting.Theme.Factions.FactionAgendas.Agenda.length)
         ],
       Obstacle:
-        setting.Theme.Factions.FactionAgendas.Obstacle[
-          roll(setting.Theme.Factions.FactionAgendas.Obstacle.length)
+        realmSetting.Theme.Factions.FactionAgendas.Obstacle[
+          roll(realmSetting.Theme.Factions.FactionAgendas.Obstacle.length)
+        ],
+    };
+
+    return factions;
+  };
+
+  const rollStandaloneFaction = (factionSetting) => {
+    const advantageNumber = Math.floor(Math.random() * 3) + 1;
+
+    let advantages = [];
+    for (let i = 0; i < advantageNumber; i++) {
+      advantages.push(
+        factionSetting.FactionAdvantages[
+          roll(factionSetting.FactionAdvantages.length)
+        ]
+      );
+    }
+
+    const nameFormula =
+      factionSetting.FactionNames.NameFormulas[
+        roll(factionSetting.FactionNames.NameFormulas.length)
+      ];
+    const adjective =
+      factionSetting.FactionNames.Adjectives[
+        roll(factionSetting.FactionNames.Adjectives.length)
+      ];
+    const noun =
+      factionSetting.FactionNames.Nouns[
+        roll(factionSetting.FactionNames.Nouns.length)
+      ];
+    const group =
+      factionSetting.FactionNames.Group[
+        roll(factionSetting.FactionNames.Group.length)
+      ];
+
+    const name = convertName(nameFormula, [
+      { type: "Noun", word: noun },
+      { type: "Adjective", word: adjective },
+      { type: "Group", word: group },
+    ]);
+
+    const agents = [
+      "Leader",
+      "Champion",
+      "Envoy",
+      "Spy",
+      "Fixer",
+      "Priest",
+      "Scholar",
+      "Assassin",
+      "Magician",
+      "Quartermaster",
+      "Captain",
+      "Herald",
+    ];
+
+    let factions = {};
+    factions = {
+      Name: name,
+      Type: factionSetting.FactionTypes[roll(factionSetting.FactionTypes.length)],
+      Agent: agents[roll(agents.length)],
+      "Trait 1":
+        factionSetting.FactionTraits.Virtues[
+          roll(factionSetting.FactionTraits.Virtues.length)
+        ],
+      "Trait 2":
+        factionSetting.FactionTraits.Vices[
+          roll(factionSetting.FactionTraits.Vices.length)
+        ],
+      Advantages: advantages.join(", "),
+      Agenda:
+        factionSetting.FactionAgendas.Goals[
+          roll(factionSetting.FactionAgendas.Goals.length)
+        ],
+      Obstacle:
+        factionSetting.FactionAgendas.Obstacles[
+          roll(factionSetting.FactionAgendas.Obstacles.length)
         ],
     };
 
@@ -616,7 +693,7 @@ const rollWorldbuilding = (data, subcategory) => {
     };
 
     // Factions
-    result.Factions = rollRealmFaction();
+    result.Factions = rollRealmFaction(setting);
 
     // set terrain count to a random number 1-6
     const terrainCount = Math.floor(Math.random() * 6) + 1;
@@ -768,7 +845,7 @@ const rollWorldbuilding = (data, subcategory) => {
     )}`;
     displayResult(textResult);
   } else if (subcategory === "Faction") {
-    result = rollRealmFaction();
+    result = rollStandaloneFaction(setting);
     const textResult = `<b><u>Faction</u></b><br><br>${formatObjectToString(
       result
     )}`;
